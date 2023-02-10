@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.coding404.myweb.command.TripVO;
+import com.coding404.myweb.util.Criteria;
 
 @Service("tripService")
 public class TripServiceImpl implements TripService{
@@ -18,10 +19,49 @@ public class TripServiceImpl implements TripService{
 		return tripMapper.noticeRegist(vo);
 	}
 
+//	@Override
+//	public ArrayList<TripVO> getList() {
+//		return tripMapper.getList();
+//		
+//	}
+
+	// ∆‰¿Ã¬° --------------------- 
 	@Override
-	public ArrayList<TripVO> getList() {
-		return tripMapper.getList();
+	public ArrayList<TripVO> getList(Criteria cri) {
+		return tripMapper.getList(cri);
 		
 	}
+	
+	@Override
+	public int getTotal(Criteria cri) {
+		return tripMapper.getTotal(cri);
+	}
+	//-------------------------
+	@Override
+	public TripVO getContent(int tno) {
+		return tripMapper.getContent(tno);
+	}
+
+	@Override
+	public int noticeModify(TripVO vo) {
+		return tripMapper.noticeModify(vo);
+	}
+
+	@Override
+	public int noticeDelete(int tno) {
+		return tripMapper.noticeDelete(tno);
+	}
+
+	@Override
+	public void upHit(int tno) {
+		tripMapper.upHit(tno);
+	}
+
+	@Override
+	public ArrayList<TripVO> getPrevNext(int tno) {
+		return tripMapper.getPrevNext(tno);
+	}
+
+
 	
 }

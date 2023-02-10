@@ -2,16 +2,92 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-  
-  <mapper namespace="com.coding404.myweb.trip.service.TripMapper">
-  
-  	<insert id="noticeRegist" parameterType="TripVO">
-  		insert into trip(tripdate, writer, title, content)
-  		values(#{tripdate},#{writer}, #{title}, #{content})
-  	</insert>
-  
-  	<select id="getList" resultType="TripVO">
-  		select * from trip order by tno desc;
-  	</select>
-  
-  </mapper>
+
+<mapper namespace="com.coding404.myweb.trip.service.TripMapper">
+
+	<insert id="noticeRegist" parameterType="TripVO">
+		insert into trip(tripdate, writer, title, content)
+		values(#{tripdate},#{writer}, #{title}, #{content})
+	</insert>
+	
+	
+
+	<!-- <select id="getList" resultType="TripVO">
+		select * from trip order by tno desc
+		limit #{pageStart}, #{amount}
+	</select> -->
+	
+	<!-- 동적쿼리구문의 test에는 vo의 getter, map의 키값이 들어갑니다 -->
+	<select id="getList" resultType="TripVO">
+		select * from trip
+		
+		<!-- 전체 다 실행되야하면 if구문  --> 
+		<if test="searchType == 'title'   ">where title like concat('%',#{searchName},'%')</if>
+		<if test="searchType == 'content' ">where content like concat('%',#{searchName},'%')</if>
+		<if test="searchType == 'writer'  ">where writer like concat('%',#{searchName},'%')</if>
+		<if test="searchType == 'titcont' ">where title like concat('%',#{searchName},'%') 
+										    or content like concat('%',#{searchName},'%')</if>
+		<if test="searchType == null or searchType == '' ">where 1=1</if>								    
+		
+		  
+		<!--  choose구문은 else if 구문과 같음 
+		<choose>
+			<when test="searchType == 'title'   ">where title like concat('%',#{searchName},'%')</when>
+			<when test="searchType == 'content' ">where content like concat('%',#{searchName},'%')</when>
+			<when test="searchType == 'writer'  ">where writer like concat('%',#{searchName},'%')</when>
+			<when test="searchType == 'titcont' ">where title like concat('%',#{searchName},'%') 
+										    	  or content like concat('%',#{searchName},'%')</when>
+		</choose> 
+		  -->
+		 
+		order by tno desc
+		limit #{pageStart}, #{amount}
+	</select>
+	
+	
+
+	<select id="getContent" resultType="TripVO">
+		select * from trip where tno = #{tno}
+	</select>
+
+	<update id="noticeModify" parameterType="TripVO">
+		update trip
+		set tripdate = #{tripdate},
+		title = #{title},
+		content = #{content}
+		where tno = #{tno}
+	</update>
+
+	<delete id="noticeDelete" parameterType="int">
+		delete from trip where tno =#{tno}
+	</delete>
+
+	<update id="upHit">
+		update trip
+		set hit = hit + 1
+		where tno = #{tno}
+	</update>
+
+	<!-- 이전글, 다음글 -->
+	<!-- xml or html에서 부등호는 태그로 인식이 되는데, CDATA는 순수한 문자열 형태로 인식을 시킴 -->
+	<select id="getPrevNext" resultType="TripVO">
+		<![CDATA[
+		select * from trip
+		where tno in ((select tno from trip where tno < #{tno} order by tno desc limit 1),
+					  (select tno from trip where tno > #{tno} limit 1))
+		order by tno desc			  
+		]]>
+	</select>
+	
+	<!-- 검색페이지에서 페이지네이션을 맞춰주기 위한 내용 -->
+	<select id="getTotal" resultType="int">
+		select count(*) as total from trip
+		<if test="searchType == 'title'   ">where title like concat('%',#{searchName},'%')</if>
+		<if test="searchType == 'content' ">where content like concat('%',#{searchName},'%')</if>
+		<if test="searchType == 'writer'  ">where writer like concat('%',#{searchName},'%')</if>
+		<if test="searchType == 'titcont' ">where title like concat('%',#{searchName},'%') 
+										    or content like concat('%',#{searchName},'%')</if>
+		<if test="searchType == null or searchType == '' ">where 1=1</if>								    
+		
+	</select>
+</mapper>
